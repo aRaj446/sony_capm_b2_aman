@@ -1,11 +1,20 @@
 // refer fule where my db tables are
 using { anubhav.db } from '../db/datamodel';
 
-service CatalogService @(path: 'CatalogService') {
+service CatalogService @(path:'CatalogService',
+                ///Authentication
+                        requires: 'authenticated-user') {
     // Expose my database table as a odata service
     // CURDQ => Create, Update, Read, Delete & Query Data
     //@readonly
-    entity EmployeeSrv as projection on db.master.employees;
+    entity EmployeeSrv 
+            @(restrict: [
+            { grant: ['READ'], to: 'Viewer', where :'bankName = $user.BankName' },
+            { grant: ['WRITE'], to: 'Admin' }
+        ])
+
+    
+    as projection on db.master.employees;
     //Other entities
     entity BusinessPartnerSet as projection on db.master.businesspartner;
     entity AddressSet as projection on db.master.address;
